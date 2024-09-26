@@ -16,9 +16,11 @@ CREATE TABLE task(
 
 -----------------------------------------------------------------------------------------
 
-SELECT id, assigned_to, status, due_date, priority, comment FROM task
+SELECT count(*), id, assigned_to, status, due_date, priority, comment FROM task
 ORDER BY id
 LIMIT 5 OFFSET 1;
+
+SELECT COUNT(*) as totalTasks FROM task;
 
 SELECT id, assigned_to, status, due_date, priority, comment FROM task
 ORDER BY id
