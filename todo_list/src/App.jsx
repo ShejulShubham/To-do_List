@@ -10,6 +10,7 @@ const App = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [tasks, setTasks] = useState([]);
   const [currentTask, setCurrentTask] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
   useEffect(() => {
     loadTasks();
@@ -27,29 +28,40 @@ const App = () => {
   };
 
   const handleAddOrUpdateTask = async (task) => {
-    if (task.id) {
-      const result = await updateTask(task);
-    } else {
-      const result = await addTask(task);
+    try {
+      if (task.id) {
+        const result = await updateTask(task);
+      } else {
+        const result = await addTask(task);
+      }
+    } catch (error) {
+      handleError(error);
     }
     loadTasks();
     setCurrentTask(null);
+    setIsFormVisible(false);
   };
 
   const handleEditTask = (taskId) => {
     const task = tasks.find((task) => task.id === taskId);
     setCurrentTask(task);
+    setIsFormVisible(true);
   };
 
   const handleDeleteTask = async (taskId) => {
     try {
       const result = await deleteTask(taskId);
-      console.log(JSON.stringify(result.data));
-      toast.success(result);
+      // console.log(JSON.stringify(result.data));
     } catch (error) {
       handleError(error);
     }
+    toast.success("Task is Deleted");
     loadTasks();
+  };
+
+  const handleAddNewTaskClick = () => {
+    setCurrentTask(null);
+    setIsFormVisible(true);
   };
 
   return (
@@ -57,8 +69,22 @@ const App = () => {
       <div className="content p-4 w-100">
           <div className="header d-flex justify-content-between align-items-center mb-4">
               <h1>Tasks</h1>
-              <div className="d-grid gap-2"></div>
+              <div className="d-grid gap-2">
+                <button className="btn btn-primary" onClick={handleAddNewTaskClick}>
+                Add New Task
+                </button>
+              </div>
           </div>
+          {/* Conditionally show TaskForm */}
+          {isFormVisible && (
+          <div className="overlay">
+            <TaskForm
+              currentTask={currentTask}
+              onSave={handleAddOrUpdateTask}
+              onCancel={() => setIsFormVisible(false)}
+            />
+          </div>
+          )}
               <table className="table table-striped table-bordered table-hover">
                   <thead>
                       <tr>
