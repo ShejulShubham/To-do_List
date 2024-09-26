@@ -16,11 +16,11 @@ CREATE TABLE task(
 
 -----------------------------------------------------------------------------------------
 
-SELECT id, assigned_to, status, create_time, due_date, priority, comment FROM task
+SELECT id, assigned_to, status, due_date, priority, comment FROM task
 ORDER BY id
 LIMIT 5 OFFSET 1;
 
-SELECT id, assigned_to, status, create_time, due_date, priority, comment FROM task
+SELECT id, assigned_to, status, due_date, priority, comment FROM task
 ORDER BY id
 LIMIT ? OFFSET ?;
 
