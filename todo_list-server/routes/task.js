@@ -9,21 +9,34 @@ router.get('/all', (request, response) => {
     const { page } = request.query
     const limit = 5
     const offset = (page - 1) * limit
-    const statement = `SELECT id, assigned_to, status, due_date, priority, comment FROM task
+    const taskStatement = `SELECT id, assigned_to, status, due_date, priority, comment FROM task
     ORDER BY id
     LIMIT ? OFFSET ?;`
 
-    db.pool.query(statement, [limit, offset], (error, tasks) => {
-        if (error) {
-            response.send(utils.createResult(error, null));
-        } else {
-            const formattedTasks = tasks.map((task) => ({
-                ...task,
-                due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : null,
-            }));
-            response.send(utils.createResult(null, formattedTasks));
+    const countStatement = `SELECT COUNT(*) as totalTasks FROM task;`
+
+    db.pool.query(countStatement, (error, countResult) => {
+        if(error){
+            return response.send(utils.createErrorResult(error))
         }
-    });
+
+        const totalTasks = countResult[0].totalTasks;
+
+        db.pool.query(taskStatement, [limit, offset], (error, tasks) => {
+            if (error) {
+                response.send(utils.createResult(error, null));
+            } else {
+                const formattedTasks = tasks.map((task) => ({
+                    ...task,
+                    due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : null,
+                }));
+                response.send(utils.createResult(null, {formattedTasks, totalTasks}));
+            }
+        });
+
+
+    })
+
 })
 
 
