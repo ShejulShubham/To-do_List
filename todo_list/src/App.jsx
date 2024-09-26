@@ -1,41 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import TaskList from './components/taskList';
 import TaskForm from './components/taskForm';
 import { getTasks, addTask, updateTask, deleteTask } from './services/taskService';
 import handleError from './utils';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [tasks, setTasks] = useState([]);
   const [currentTask, setCurrentTask] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-
-  const loadTasks = async () => {
+  const [totalTasks, setTotalTasks] = useState(0);
+  
+  const loadTasks = useCallback(async () => {
     try {
       const data = await getTasks(pageNumber);
-      // console.log(JSON.stringify(data));
-      setTasks(data);
+      setTotalTasks(data.totalTasks);
+      console.log(data.formattedTasks)
+      setTasks(data.formattedTasks);
     } catch (error) {
       handleError(error);
     }
-  };
+  }, [pageNumber]) ;
+
+  
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
+
+
 
   const handleAddOrUpdateTask = async (task) => {
+    let flag = true
     try {
       if (task.id) {
-        const result = await updateTask(task);
+        await updateTask(task);
+        flag = false
       } else {
-        const result = await addTask(task);
+        await addTask(task);
       }
     } catch (error) {
       handleError(error);
+    }
+
+    if(flag){
+      toast.success("New Task added Successfully")
+    } else {
+      toast.success("Task updated Successfully")
     }
     loadTasks();
     setCurrentTask(null);
@@ -50,8 +63,7 @@ const App = () => {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      const result = await deleteTask(taskId);
-      // console.log(JSON.stringify(result.data));
+      await deleteTask(taskId);
     } catch (error) {
       handleError(error);
     }
@@ -62,6 +74,13 @@ const App = () => {
   const handleAddNewTaskClick = () => {
     setCurrentTask(null);
     setIsFormVisible(true);
+  };
+
+  const handlePageChange = (newPageNumber) => {
+    const maxPage = Math.ceil(totalTasks / 5);
+    if (newPageNumber >= 1 && newPageNumber <= maxPage) {
+      setPageNumber(newPageNumber);
+    }
   };
 
   return (
@@ -75,7 +94,7 @@ const App = () => {
                 </button>
               </div>
           </div>
-          {/* Conditionally show TaskForm */}
+
           {isFormVisible && (
           <div className="overlay">
             <TaskForm
@@ -103,7 +122,28 @@ const App = () => {
                       onDelete={handleDeleteTask}
                     />
               </table>
+          <div className='row'>
+            <div className='col col-8'></div>
+            <div className='col col-4'>
+              { pageNumber === 1 ? 
+                <button className='btn btn-outline-info' disabled>Previous</button>
+                : 
+                <button className='btn btn-outline-info'
+                onClick={() => handlePageChange(pageNumber - 1)}>Previous</button>
+              }
+
+
+              { pageNumber >= Math.ceil(totalTasks / 5) ? 
+                <button className='btn btn-outline-info' disabled>Next</button>
+                :
+                <button className='btn btn-outline-info'
+                onClick={() => handlePageChange(pageNumber + 1)}>Next</button>
+              }
+              <span class="badge text-bg-secondary">Page: {pageNumber}</span>
+            </div>
+          </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };
