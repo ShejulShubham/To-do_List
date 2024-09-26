@@ -1,16 +1,25 @@
 import React from 'react';
 
-const TaskList = ({ tasks, onEdit, onDelete }) => {
+function TaskList({ tasks, onEdit, onDelete }){
   return (
-    <ul>
-      {tasks.map((task) => (
-        <li key={task.id}>
-          {task.title}
-          <button onClick={() => onEdit(task.id)}>Edit</button>
-          <button onClick={() => onDelete(task.id)}>Delete</button>
-        </li>
+    <tbody>
+      {tasks && tasks.map((task) => (
+        <tr key={task.id}>
+          <td>{task.id}</td>
+          <td>{task.assigned_to}</td>
+          <td>{task.status}</td>
+          <td>{task.due_date}</td>
+          <td>{task.priority}</td>
+          <td>{task.comment}</td>
+          <td>
+            <button onClick={() => onEdit(task.id)} 
+              className='btn btn-primary'>Edit</button>
+            <button onClick={() => onDelete(task.id)}
+              className='btn btn-warning'>Delete</button>
+          </td>
+        </tr>
       ))}
-    </ul>
+    </tbody>
   );
 };
 

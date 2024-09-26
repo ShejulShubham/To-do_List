@@ -1,19 +1,26 @@
-let tasks = [];
+import axios from 'axios'
+import config from "../config";
 
-export const getTasks = () => Promise.resolve([...tasks]);
+export async function getTasks(pageNumber){
+  const response = await axios.get(`${config.url}/task/all?page=${pageNumber}`)
+  // console.log(response.data);
+  return response.data.data
+}
 
-export const addTask = (task) => {
-  task.id = Date.now();
-  tasks.push(task);
-  return Promise.resolve(task);
-};
+export async function addTask(body){
+  const response = await axios.post(`${config.url}/task/add`, body)
+  // console.log(response.data);
+  return response.data
+}
 
-export const updateTask = (updatedTask) => {
-  tasks = tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task));
-  return Promise.resolve(updatedTask);
-};
+export async function updateTask(body){
+  const response = await axios.put(`${config.url}/task/update`, body)
+  // console.log(response.data);
+  return response.data
+}
 
-export const deleteTask = (taskId) => {
-  tasks = tasks.filter((task) => task.id !== taskId);
-  return Promise.resolve();
-};
+export async function deleteTask(taskId){
+  const response = await axios.delete(`${config.url}/task/delete?id=${taskId}`)
+  // console.log(response.data);
+  return response.data
+}

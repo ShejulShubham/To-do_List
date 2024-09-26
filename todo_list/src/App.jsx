@@ -3,8 +3,11 @@ import './App.css';
 import TaskList from './components/taskList';
 import TaskForm from './components/taskForm';
 import { getTasks, addTask, updateTask, deleteTask } from './services/taskService';
+import handleError from './utils';
+import { toast } from 'react-toastify';
 
 const App = () => {
+  const [pageNumber, setPageNumber] = useState(1);
   const [tasks, setTasks] = useState([]);
   const [currentTask, setCurrentTask] = useState(null);
 
@@ -12,16 +15,22 @@ const App = () => {
     loadTasks();
   }, []);
 
+
   const loadTasks = async () => {
-    const tasks = await getTasks();
-    setTasks(tasks);
+    try {
+      const data = await getTasks(pageNumber);
+      // console.log(JSON.stringify(data));
+      setTasks(data);
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const handleAddOrUpdateTask = async (task) => {
     if (task.id) {
-      await updateTask(task);
+      const result = await updateTask(task);
     } else {
-      await addTask(task);
+      const result = await addTask(task);
     }
     loadTasks();
     setCurrentTask(null);
@@ -33,15 +42,42 @@ const App = () => {
   };
 
   const handleDeleteTask = async (taskId) => {
-    await deleteTask(taskId);
+    try {
+      const result = await deleteTask(taskId);
+      console.log(JSON.stringify(result.data));
+      toast.success(result);
+    } catch (error) {
+      handleError(error);
+    }
     loadTasks();
   };
 
   return (
-    <div>
-      <h1>To-Do List</h1>
-      <TaskForm currentTask={currentTask} onSave={handleAddOrUpdateTask} />
-      <TaskList tasks={tasks} onEdit={handleEditTask} onDelete={handleDeleteTask} />
+    <div className="todo-list">
+      <div className="content p-4 w-100">
+          <div className="header d-flex justify-content-between align-items-center mb-4">
+              <h1>Tasks</h1>
+              <div className="d-grid gap-2"></div>
+          </div>
+              <table className="table table-striped table-bordered table-hover">
+                  <thead>
+                      <tr>
+                          <th>Id</th>
+                          <th>Assigned To</th>
+                          <th>Status</th>
+                          <th>Due Date</th>
+                          <th>Priority</th>
+                          <th>Comments</th>
+                          <th>Action</th>
+                      </tr>
+                  </thead>
+                    <TaskList 
+                      tasks={tasks}
+                      onEdit={handleEditTask}
+                      onDelete={handleDeleteTask}
+                    />
+              </table>
+      </div>
     </div>
   );
 };
