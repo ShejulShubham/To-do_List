@@ -1,5 +1,6 @@
 const config = {
-  url: 'http://localhost:4000',
+  url: 'https://to-do-list-server-rka7.onrender.com',
+  
 }
 
 export default config
