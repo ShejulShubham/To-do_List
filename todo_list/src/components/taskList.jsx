@@ -15,7 +15,7 @@ function TaskList({ tasks, onEdit, onDelete }){
             <button onClick={() => onEdit(task.id)} 
               className='btn btn-primary'>Edit</button>
             <button onClick={() => onDelete(task.id)}
-              className='btn btn-warning'>Delete</button>
+              className='btn btn-danger'>Delete</button>
           </td>
         </tr>
       ))}

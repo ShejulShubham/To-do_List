@@ -123,7 +123,8 @@ const App = () => {
           ):(
 
             <table className="table table-striped table-bordered table-hover">
-                  <thead>
+              <caption>List of Task</caption>
+                  <thead className='table table-primary'>
                       <tr>
                           <th>Id</th>
                           <th>Assigned To</th>
