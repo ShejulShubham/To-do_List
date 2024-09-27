@@ -50,7 +50,7 @@ function TaskForm({ currentTask, onSave, onCancel }) {
         const selectedDate = new Date(task.due_date);
         
         if (selectedDate < today) {
-          toast.warning("Due date cannot be in the past.");
+          toast.warning("Select Due date of the future.");
           return;
         }
     onSave(task);

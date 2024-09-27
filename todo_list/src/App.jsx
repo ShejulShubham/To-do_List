@@ -6,6 +6,7 @@ import { getTasks, addTask, updateTask, deleteTask } from './services/taskServic
 import handleError from './utils';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
+import ProgressBar from './components/progressBar';
 
 const App = () => {
   const [pageNumber, setPageNumber] = useState(1);
@@ -13,16 +14,28 @@ const App = () => {
   const [currentTask, setCurrentTask] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [totalTasks, setTotalTasks] = useState(0);
-  
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+ 
+
+
   const loadTasks = useCallback(async () => {
+    setLoading(true);
+    setProgress(10);
+
     try {
       const data = await getTasks(pageNumber);
+      setProgress(60);
       setTotalTasks(data.totalTasks);
       console.log(data.formattedTasks)
       setTasks(data.formattedTasks);
     } catch (error) {
       handleError(error);
+    } finally {
+      setLoading(false);
+      setProgress(100);
     }
+    setProgress(0);
   }, [pageNumber]) ;
 
   
@@ -85,6 +98,7 @@ const App = () => {
 
   return (
     <div className="todo-list">
+      <ProgressBar progress={progress}/>
       <div className="content p-4 w-100">
           <div className="header d-flex justify-content-between align-items-center mb-4">
               <h1>Tasks</h1>
@@ -104,7 +118,11 @@ const App = () => {
             />
           </div>
           )}
-              <table className="table table-striped table-bordered table-hover">
+          {loading? (
+          <div className='loading'>Loading Content.....</div>
+          ):(
+
+            <table className="table table-striped table-bordered table-hover">
                   <thead>
                       <tr>
                           <th>Id</th>
@@ -122,6 +140,7 @@ const App = () => {
                       onDelete={handleDeleteTask}
                     />
               </table>
+          )}    
           <div className='row'>
             <div className='col col-8'></div>
             <div className='col col-4'>
