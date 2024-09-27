@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 function TaskForm({ currentTask, onSave, onCancel }) {
+  
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   const [task, setTask] = useState({
     id: '',
     assigned_to: '',
@@ -16,7 +23,7 @@ function TaskForm({ currentTask, onSave, onCancel }) {
         id: currentTask.id || '',
         assigned_to: currentTask.assigned_to || '',
         status: currentTask.status || '',
-        due_date: currentTask.due_date || '',
+        due_date: currentTask.due_date || getTodayDate(),
         priority: currentTask.priority || '',
         comment: currentTask.comment || '',
       });
@@ -25,7 +32,7 @@ function TaskForm({ currentTask, onSave, onCancel }) {
         id: '',
         assigned_to: '',
         status: '',
-        due_date: '',
+        due_date: getTodayDate(),
         priority: '',
         comment: '',
       });
@@ -39,6 +46,13 @@ function TaskForm({ currentTask, onSave, onCancel }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+        const today = new Date();
+        const selectedDate = new Date(task.due_date);
+        
+        if (selectedDate < today) {
+          toast.warning("Due date cannot be in the past.");
+          return;
+        }
     onSave(task);
   };
 
