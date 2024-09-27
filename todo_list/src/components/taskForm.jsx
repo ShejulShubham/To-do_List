@@ -78,15 +78,20 @@ function TaskForm({ currentTask, onSave, onCancel }) {
           <div className="col">
             <div className="mb-3">
               <label htmlFor="status">Status</label>
-              <input
+              <select
                 id="status"
                 name="status"
                 value={task.status}
                 onChange={handleChange}
-                type="text"
                 className="form-control"
                 required
-              />
+              >
+                <option value="">Select Status</option>
+                <option value="not yet started">Not yet started</option>
+                <option value="pending">Pending</option>
+                <option value="in progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
             </div>
           </div>
         </div>
@@ -108,15 +113,19 @@ function TaskForm({ currentTask, onSave, onCancel }) {
           <div className="col">
             <div className="mb-3">
               <label htmlFor="priority">Priority</label>
-              <input
+              <select
                 id="priority"
                 name="priority"
                 value={task.priority}
                 onChange={handleChange}
-                type="text"
                 className="form-control"
                 required
-              />
+              >
+                <option value="">Select Priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
             </div>
           </div>
         </div>
