@@ -13,7 +13,7 @@ function TaskList({ tasks, onEdit, onDelete }){
           <td>{task.comment}</td>
           <td>
             <button onClick={() => onEdit(task.id)} 
-              className='btn btn-primary'>Edit</button>
+              className='btn btn-warning'>Edit</button>
             <button onClick={() => onDelete(task.id)}
               className='btn btn-danger'>Delete</button>
           </td>
