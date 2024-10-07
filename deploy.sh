@@ -1,13 +1,13 @@
 # Navigate to the project directory
-cd /To-do_List
+# cd /To-do_List
 
 # Start the server
-cd todo_list-server
+cd todo_list-server/
 npm install
 node server.js
 
 # Build the React app
-cd ../todo_list
+cd ../todo_list/
 npm install
 npm run build
 
