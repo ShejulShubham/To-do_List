@@ -1,80 +1,93 @@
-const express = require('express')
-const db = require('../db')
-const utils = require('../utils')
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const utils = require('../utils');
 
-const router = express.Router()
+const router = express.Router();
+const filePath = path.join(__dirname, 'Tasks.json'); // File to store tasks in JSON format
 
+// Function to read tasks from the file
+const readTasksFromFile = () => {
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify([]));
+    }
+    const tasks = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(tasks);
+};
 
+// Function to write tasks to the file
+const writeTasksToFile = (tasks) => {
+    fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
+};
+
+// Route to get all tasks (with pagination)
 router.get('/all', (request, response) => {
-    const { page } = request.query
-    const limit = 5
-    const offset = (page - 1) * limit
-    const taskStatement = `SELECT id, assigned_to, status, due_date, priority, comment FROM task
-    ORDER BY id
-    LIMIT ? OFFSET ?;`
+    const { page = 1 } = request.query; // Default page 1 if not provided
+    const limit = 5;
+    const offset = (page - 1) * limit;
 
-    const countStatement = `SELECT COUNT(*) as totalTasks FROM task;`
+    const tasks = readTasksFromFile();
+    const paginatedTasks = tasks.slice(offset, offset + limit);
+    const totalTasks = tasks.length;
 
-    db.pool.query(countStatement, (error, countResult) => {
-        if(error){
-            return response.send(utils.createErrorResult(error))
-        }
+    response.send(utils.createResult(null, { formattedTasks: paginatedTasks, totalTasks }));
+});
 
-        const totalTasks = countResult[0].totalTasks;
-
-        db.pool.query(taskStatement, [limit, offset], (error, tasks) => {
-            if (error) {
-                response.send(utils.createResult(error, null));
-            } else {
-                const formattedTasks = tasks.map((task) => ({
-                    ...task,
-                    due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : null,
-                }));
-                response.send(utils.createResult(null, {formattedTasks, totalTasks}));
-            }
-        });
-
-
-    })
-
-})
-
-
+// Route to add a new task
 router.post('/add', (request, response) => {
-    const { assigned_to, status, due_date, priority, comment } = request.body
-    const statement = `INSERT INTO task(assigned_to, status, due_date, priority, comment) VALUES
-    (?, ?, ?, ?, ?);`
+    const { assigned_to, status, due_date, priority, comment } = request.body;
 
-    db.pool.execute(statement, [assigned_to, status, due_date, priority, comment], (error, result) => {
-        response.send(utils.createResult(error, result))
-    })
-})
+    const tasks = readTasksFromFile();
+    const newTask = {
+        id: tasks.length ? tasks[tasks.length - 1].id + 1 : 1, // Auto-increment ID
+        assigned_to,
+        status,
+        due_date: due_date ? new Date(due_date).toISOString().split('T')[0] : null,
+        priority,
+        comment
+    };
+    tasks.push(newTask);
+    writeTasksToFile(tasks);
 
-router.put('/update', (request, response) =>{
-    const { id, assigned_to, status, due_date, priority, comment } = request.body
-    const statement = `UPDATE task SET
-    assigned_to = ?,
-    status = ?,
-    due_date = ?,
-    priority = ?,
-    comment = ?
-    WHERE id = ?;`
+    response.send(utils.createResult(null, newTask));
+});
 
-    db.pool.execute(statement, [assigned_to, status, due_date, priority, comment, id],
-        (error, result) => {
-        response.send(utils.createResult(error, result))
-    })
-})
+// Route to update a task
+router.put('/update', (request, response) => {
+    const { id, assigned_to, status, due_date, priority, comment } = request.body;
 
+    const tasks = readTasksFromFile();
+    const taskIndex = tasks.findIndex((task) => task.id === Number(id));
+    if (taskIndex === -1) {
+        return response.send(utils.createResult('Task not found', null));
+    }
 
+    tasks[taskIndex] = {
+        id: Number(id),
+        assigned_to,
+        status,
+        due_date: due_date ? new Date(due_date).toISOString().split('T')[0] : null,
+        priority,
+        comment
+    };
+
+    writeTasksToFile(tasks);
+    response.send(utils.createResult(null, tasks[taskIndex]));
+});
+
+// Route to delete a task
 router.delete('/delete', (request, response) => {
-    const { id } = request.query
-    const statement = `DELETE FROM task WHERE id = ?;`
+    const { id } = request.query;
 
-    db.pool.execute(statement, [id], (error, result) => {
-        response.send(utils.createResult(error, result))
-    })
-})
+    const tasks = readTasksFromFile();
+    const taskIndex = tasks.findIndex((task) => task.id === Number(id));
+    if (taskIndex === -1) {
+        return response.send(utils.createResult('Task not found', null));
+    }
 
+    tasks.splice(taskIndex, 1); // Remove task
+    writeTasksToFile(tasks);
+    response.send(utils.createResult(null, { message: 'Task deleted' }));
+});
 
-module.exports = router
+module.exports = router;
