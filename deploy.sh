@@ -1,10 +1,12 @@
 # Start the server
-cd $HOME/To-do_List/todo_list-server/
+# cd $HOME/To-do_List/todo_list-server/
+cd todo_list-server/
 npm install
 pm2 start server.js --name my-server
 
 # Build the React app
-cd $HOME/To-do_List/todo_list
+# cd $HOME/To-do_List/todo_list
+cd todo_list/
 npm install
 npm run build
 yarn start
