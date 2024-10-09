@@ -2,7 +2,7 @@
 # cd $HOME/To-do_List/todo_list-server/
 cd todo_list-server/
 npm install
-npm install -g pm2
+sudo npm install -g pm2
 pm2 start server.js --name my-server
 
 # Build the React app
@@ -10,7 +10,8 @@ pm2 start server.js --name my-server
 cd ../todo_list/
 npm install
 npm run build
-yarn start
+npm install -g serve
+serve -s build
 
 
 # Optional: Using pm2
