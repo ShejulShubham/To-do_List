@@ -1,5 +1,6 @@
 # Start the server
 # cd $HOME/To-do_List/todo_list-server/
+git pull
 cd todo_list-server/
 npm install
 sudo npm install -g pm2
@@ -10,7 +11,7 @@ pm2 start server.js --name my-server
 cd ../todo_list/
 npm install
 npm run build
-npm install -g serve
+sudo npm install -g serve
 serve -s build
 
 
