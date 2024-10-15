@@ -3,7 +3,7 @@
     "concurrently": "^9.0.1"
   },
     "scripts": {
-      "start": "concurrently \"npm run run --prefix todo_list\" \"npm run start --prefix todo_list-server\""
+      "start": "concurrently \"npm run start --prefix todo_list\" \"npm run start --prefix todo_list-server\""
     }
   
 }
